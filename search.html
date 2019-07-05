@@ -1,0 +1,157 @@
+<head>
+    <meta charset="UTF-8">
+    <title>Info Scraper</title>
+    <script src="assets/js/vue.js"></script>
+    <script src="assets/js/element-ui@2.10.0.js"></script>
+</head>
+
+<div id="app">
+    <div style="margin-top: 15px;">
+        <el-input placeholder="请输入内容" v-model="user_search" class="input-with-select">
+            <el-select v-model="select" slot="prepend" placeholder="请选择">
+                <el-option label="域名" value="1"></el-option>
+                <el-option label="IP" value="2"></el-option>
+            </el-select>
+            <el-button slot="append" icon="el-icon-search" @click="do_search"></el-button>
+        </el-input>
+    </div>
+
+    <template>
+        <el-table :data="sites_info" style="width: 100%">
+            <el-table-column type="expand">
+                <template slot-scope="props">
+                    <el-form label-position="left" inline class="demo-table-expand" id="info-present">
+                        <el-form-item :label="key" v-for="(val, key, i) in props.row.json">
+                            <span>{{ props.row.json[key] }}</span>
+                        </el-form-item>
+                        <template>
+                            <div v-html="props.row.html" class="info-html">
+                        </template>
+                    </el-form>
+                </template>
+            </el-table-column>
+            <el-table-column label="目标" prop="site">
+            </el-table-column>
+            <el-table-column label="情报名称" prop="name">
+            </el-table-column>
+            <el-table-column label="情报来源" prop="sources">
+            </el-table-column>
+        </el-table>
+    </template>
+
+    <!-- <el-pagination background layout="prev, pager, next" :total="1000">
+    </el-pagination> -->
+</div>
+
+<style>
+    @import url("assets/css/index.css");
+
+    .el-select .el-input {
+        width: 130px;
+    }
+
+    .input-with-select .el-input-group__prepend {
+        background-color: #fff;
+    }
+
+    .demo-table-expand {
+    font-size: 100%;
+    }
+    .demo-table-expand label {
+    width: 90px;
+    color: #99a9bf;
+    }
+    .demo-table-expand .el-form-item {
+    margin-right: 0;
+    margin-bottom: 0;
+    width: 100%;
+    }
+    .info-html{ max-width: 100% !important; }
+</style>
+
+
+<script>
+    /*
+    * 对比两个json数据
+    * @param:obj1
+    * @param:obj2
+    * @return
+    */
+    function compreObj(obj1, obj2) {
+        var flag = true;
+        function compre(obj1, obj2) {
+            if (Object.keys(obj1).length != Object.keys(obj2).length) {
+                flag = false;
+            } else {
+                for (var x in obj1) {
+                    if (obj2.hasOwnProperty(x)) {
+                        if (obj1[x] != obj2[x]) {
+                            if (typeof(obj1[x]) == "number" || typeof(obj1[x]) == "string" || typeof(obj2[x]) == "number" ||
+                                    typeof(obj2[x]) == "string") {
+                                flag = false;
+                            } else {
+                                compre(obj1[x], obj2[x]);
+                            }
+                        }
+                    } else {
+                        flag = false;
+                    }
+                }
+            }
+            if (flag === false) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        return compre(obj1, obj2)
+    }
+
+    const ipcRenderer = require('electron').ipcRenderer;
+    var app = new Vue({
+        el: '#app',
+        data: {
+            user_search: "",
+            select: "",
+            sites_info: [],
+            html: ''
+        },
+        methods: {
+            do_search: function () {
+                console.log(this.select)
+                if (!this.user_search) {
+                    alert("Please fill in the description");
+                    return;
+                }
+                info = {
+                    user_search: this.user_search,
+                    select: this.select
+                }
+                ipcRenderer.send('do_search', JSON.stringify(info));
+            }
+        }
+    })
+      
+    setInterval(() => {
+        ipcRenderer.send('getindexData-message');
+    }, 500);
+
+    ipcRenderer.on('getindexData-reply', function (event, arg) {
+        var info_reply = JSON.parse(arg);
+        if(sessionStorage.getItem("webinfo") == null){
+            //sessionStorage没有数据则保存数据为JSON对象
+            sessionStorage.setItem('webinfo', JSON.stringify(info_reply));
+            app.sites_info = info_reply.webinfo;
+        }else{
+            //分别获取sessionStorage和本地文件存储的JSON对象，然后对其进行比较
+            sess_info = JSON.parse(sessionStorage.getItem("webinfo"));
+            local_info = JSON.parse(JSON.stringify(info_reply))
+            if(!compreObj(sess_info, local_info)){
+                //存在新数据再进行页面更新
+                sessionStorage.setItem('webinfo', JSON.stringify(info_reply));
+                app.sites_info = info_reply.webinfo;
+            }
+        }
+    });
+</script>

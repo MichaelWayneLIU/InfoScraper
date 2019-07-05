@@ -1,0 +1,29 @@
+{
+  "name": "infoscraper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "packager": "electron-packager . InfoScraper --overwrite --asar=true --platform=win32 --arch=ia32 --icon=assets/img/search.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Electron Tutorial App\" --electron-version=2.0.2"
+  },
+  "author": "MS",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^2.0.2",
+    "electron-builder": "^20.11.1",
+    "electron-packager": "^12.2.0",
+    "grunt": "^1.0.2",
+    "grunt-electron-installer": "^2.1.0"
+  },
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "lodash": "^4.17.4",
+    "nightmare": "2.10.0",
+    "lowdb": "^1.0.0",
+    "electron-connect": "^0.6.3",
+    "tldjs": "^2.3.1",
+    "superagent": "^5.1.0"
+  }
+}
