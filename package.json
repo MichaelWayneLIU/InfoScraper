@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "cheerio": "^0.22.0",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.13",
     "nightmare": "2.10.0",
     "lowdb": "^1.0.0",
     "electron-connect": "^0.6.3",
