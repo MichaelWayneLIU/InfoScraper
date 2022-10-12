@@ -13,7 +13,7 @@
   "devDependencies": {
     "electron": "^2.0.2",
     "electron-builder": "^20.11.1",
-    "electron-packager": "^12.2.0",
+    "electron-packager": "^16.0.0",
     "grunt": "^1.0.2",
     "grunt-electron-installer": "^2.1.0"
   },
